@@ -3,6 +3,8 @@ import cors from "cors"
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/mongodb.js";
+import authRouter from "./routes/authRoutes.js";
+
 
 const app = express();
 const port = process.env.PORT || 5000
@@ -12,7 +14,9 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors({credentials:true}))
 
-app.get("/api/status", (req,res)=>res.send("server is live"))
+// API endpoints
+app.get("/api/status", (req,res)=>res.send("API is live"))
+app.use('/api/auth', authRouter)
 
 
 
