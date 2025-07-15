@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import userModel from "../models/userModel.js"
+import transporter from "../config/nodeMailer.js";
 
 
 export const register = async (req, res) => {
@@ -31,11 +32,21 @@ export const register = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-                return res.json({success:true,message:"Sign up Successfull"})
+        // Sending welcome email
+        const mailOption = {
+            from : process.env.SENDER_EMAIL,
+            to : email,
+            subject : "Welcome to mern auth",
+            text : `welcome to mern auth.your account has been created with emai id: ${email}`
+        }
+
+        await transporter.sendMail(mailOption)
+
+        return res.json({ success: true, message: "Sign up Successfull" })
 
 
     } catch (error) {
-        res.json({ success: false, message: error.message, name:"this is register error" })
+        res.json({ success: false, message: error.message, name: "this is register error" })
     }
 }
 
@@ -69,7 +80,7 @@ export const login = async (req, res) => {
             maxage: 7 * 24 * 60 * 60 * 1000
         })
 
-        return res.json({success:true,message:"Logged in Successfully"})
+        return res.json({ success: true, message: "Logged in Successfully" })
 
 
 
@@ -80,18 +91,19 @@ export const login = async (req, res) => {
 }
 
 
-export const logout = async (req,res)=>{
+export const logout = async (req, res) => {
     try {
         res.clearCookie("token", {
-            httpOnly:true,
-            secure:process.env.NODE_ENV === 'production',
-            sameSite:process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         })
 
-        return res.json({success:true, message:"Logged out"})
+        return res.json({ success: true, message: "Logged out" })
 
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message })
     }
 }
+
