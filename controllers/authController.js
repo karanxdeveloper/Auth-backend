@@ -111,7 +111,7 @@ export const logout = async (req, res) => {
 export const sendVerifyOtp = async (req, res) => {
     try {
 
-        const { userId } = req.body;
+        const  userId  = req.user;
 
         const user = await userModel.findById(userId);
 
@@ -144,7 +144,10 @@ export const sendVerifyOtp = async (req, res) => {
 
 //Verify email
 export const verifyEmail = async (req, res) => {
-    const { userId, otp } = req.body;
+    // console.log(req.body)
+    const otp  = req.body;
+    const userId = req.user
+    // console.log(otp)
 
     if (!userId || !otp) {
         return res.json({ success: false, message: "missing details" })
@@ -153,12 +156,14 @@ export const verifyEmail = async (req, res) => {
     try {
 
         const user = await userModel.findById(userId);
+        console.log(user)
 
         if (!user) {
             return res.json({ success: false, message: "User not found" })
         }
 
-        if (user.verifyOtp === "" || user.verifyOtp !== otp) {
+        if (user.verifyOtp === "" && user.verifyOtp !== otp) {
+            console.log(user.verifyOtp)
             return res.json({ success: false, message: "Invalid OTP" })
         }
 
@@ -238,13 +243,17 @@ export const sendResetOtp = async (req, res) => {
 // Reset User Password
 export const resetPassword = async(req,res)=>{
     const {email,otp,newPassword} = req.body;
+    console.log(req.body)
 
     if(!email || !otp || !newPassword){
         return res.json({success:false,message:"Email,OTP and new Password are required"})
     }
     try {
-        
+    
         const user = await userModel.findOne({email});
+
+        console.log(user)
+
         if(!user){
             return res.json({success:false,message:"User not found"})
         }
@@ -258,8 +267,10 @@ export const resetPassword = async(req,res)=>{
         }
 
         const hasedPassword = await bcrypt.hash(newPassword,10);
+        console.log(hasedPassword)
 
         user.password = hasedPassword;
+        await user.save()
 
         user.resetOtp = "";
         user.resetOtpExpireAt = 0;

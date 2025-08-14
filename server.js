@@ -11,9 +11,11 @@ const app = express();
 const port = process.env.PORT || 5000
 connectDB()
 
+const allowedOrigins = ['https://auth-frontend-taupe.vercel.app']
+
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({credentials:true}))
+app.use(cors({origin:allowedOrigins,credentials:true}))
 
 // API endpoints
 app.get("/api/status", (req,res)=>res.send("API is live"))
